@@ -1,7 +1,5 @@
 from django.contrib import admin
-from .models import Department, Equipment
+from .models import Assignment
 
+admin.site.register(Assignment)
 
-
-admin.site.register(Department)
-admin.site.register(Equipment)

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Lista de Departamentos{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Lista de departamentos</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
+                <li class="breadcrumb-item">Lista</li>
+                <li class="breadcrumb-item active">Departamentos</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">Lista de departamentos</h5>
+                            <a href="{% url 'departments:register_department' %}" class="btn btn-success ms-12">Añadir Departamento</a>
+                        </div>
+                        <p>Aquí puedes ver los departamentos registrados.</p>
+
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+                                    <th><b>Id de departamento</b></th>
+                                    <th><b>Nombre</b></th>
+                                    <th>Locación</th>
+                                    <th>Fecha de Creación</th>
+                                    <th>Fecha de Edición</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for department in departments %}
+                                    <tr>
+                                        <td>{{ department.id_department }}</td>
+                                        <td>{{ department.name }}</td>
+                                        <td>{{ department.location }}</td>
+                                        <td>{{ department.created|date:"Y-m-d" }}</td>
+                                        <td>{{ department.updated|date:"Y-m-d" }}</td>
+                                        <td>
+                                            <a href="{% url 'departments:edit_department' department.id_department %}" class="btn btn-primary">Editar</a>
+                                            <button onclick="showDeleteModal('{{ department.id_department }}', '{% url 'departments:delete_department' department.id_department %}')" class="btn btn-danger">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6">No hay departamentos registrados.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Modal para confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este departamento?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="confirmDeleteButton" type="button" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCSRFToken() {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length, cookie.length);
+            }
+        }
+        return '';
+    }
+
+    function showDeleteModal(department_id, deleteUrl) {
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+        confirmDeleteButton.onclick = function() {
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch((error) => console.error('Error al eliminar:', error));
+            deleteModal.hide();
+        };
+
+        deleteModal.show();
+    }
+</script>
+
+{% endblock %}
