@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Lista de Equipos{% endblock %}
+{% load static %}
+
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Lista de equipos</h1>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home:home' %}">Home</a></li>
+                <li class="breadcrumb-item">Lista</li>
+                <li class="breadcrumb-item active">Equipos</li>
+            </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title">Lista de equipos</h5>
+                            <a href="{% url 'equipment:register_equipment' %}" class="btn btn-success ms-12">Añadir Equipo</a>
+                        </div>
+                        <p>Aquí puedes ver los equipos registrados.</p>
+                        <div class="table-responsive">
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th><b>Id de equipo</b></th>
+                                        <th><b>Nombre</b></th>
+                                        <th>Tipo</th>
+                                        <th>Marca</th>
+                                        <th>Modelo</th>
+                                        <th>Numero de serie</th>
+                                        <th>Estatustatus</th>
+                                        <th>Fecha de Creación</th>
+                                        <th>Fecha de Edición</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for equipment in equipments %}
+                                        <tr>
+                                            <td>{{ equipment.id_equipment }}</td>
+                                            <td>{{ equipment.name }}</td>
+                                            <td>{{ equipment.type_equipment}}</td>
+                                            <td>{{ equipment.brand }}</td>
+                                            <td>{{ equipment.model }}</td>
+                                            <td>{{ equipment.serial_number }}</td>
+                                            <td>{{ equipment.status }}</td>
+                                            <td>{{ equipment.created|date:"Y-m-d" }}</td>
+                                            <td>{{ equipment.updated|date:"Y-m-d" }}</td>
+                                            <td>
+                                                <div class="d-flex gap-2">
+                                                    <a href="{% url 'equipment:edit_equipment' equipment.id_equipment%}" class="btn btn-primary">Editar</a>
+                                                    <button onclick="showDeleteModal('{{ equipmentid_equipment}}', '{% url 'equipment:delete_equipment' equipment.id_equipment %}')" class="btn btn-danger">Eliminar</button>
+                                                <div/>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="6">No hay departamentos registrados.</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Modal para confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro de que deseas eliminar este equipo?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="confirmDeleteButton" type="button" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCSRFToken() {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length, cookie.length);
+            }
+        }
+        return '';
+    }
+
+    function showDeleteModal(equipment_id, deleteUrl) {
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const confirmDeleteButton = document.getElementById('confirmDeleteButton');
+
+        confirmDeleteButton.onclick = function() {
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Error en la solicitud: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch((error) => console.error('Error al eliminar:', error));
+            deleteModal.hide();
+        };
+
+        deleteModal.show();
+    }
+</script>
+
+{% endblock %}

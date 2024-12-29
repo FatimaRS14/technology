@@ -151,13 +151,13 @@
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'departments:register_department' %}">
+            <a href="{% url 'equipment:register_equipment' %}">
               <i class="bi bi-circle"></i><span>Registrar</span>
             </a>
           </li>
           <li>
-            <a href="components-accordion.html">
-              <i class="bi bi-circle"></i><span>Asignados</span>
+            <a href="{% url 'equipment:list_equipment' %}">
+              <i class="bi bi-circle"></i><span>Lista de equipos</span>
             </a>
           </li>
           <li>
@@ -169,7 +169,7 @@
       </li><!-- End Components Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+        <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="{% url 'departments:list_department' %}">
           <i class="bi bi-journal-text"></i><span>Departamentos</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">

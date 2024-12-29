@@ -3,15 +3,28 @@ from .forms import DepartmentRegisterForm
 from .models import Department
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 
 def register_department(request):
-    form = DepartmentRegisterForm()
     if request.method == 'POST':
         form = DepartmentRegisterForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('departments:list_department')  
+            department = form.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Departamento registrado exitosamente.',
+                    'redirect_url': reverse('departments:list_department')  
+                })
+            else:
+                return redirect('departments:list_department')  
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Error al registrar el departamento. Verifica los datos ingresados.'
+                })
     else:
         form = DepartmentRegisterForm()
 

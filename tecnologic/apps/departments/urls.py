@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import register_department
+from .views import register_department, list_department
 from . import views
 
 app_name = 'departments'
