@@ -19,6 +19,9 @@ def home(request):
     return render(request,'home/home.html', context)
 
 def register_assignment(request):
+    records_without_id = Assignment.objects.filter(id_assignment__isnull=True)
+    if records_without_id.exists():
+        records_without_id.delete()
     if request.method == 'POST':
         form = AssignmentForm(request.POST)
         if form.is_valid():
@@ -65,3 +68,6 @@ def recent_activity(request):
     }
 
     return render(request, 'home/home.html', context)
+
+
+

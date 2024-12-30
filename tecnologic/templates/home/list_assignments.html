@@ -23,7 +23,8 @@
                         <h5 class="card-title">Asignaciones Activas</h5>
                         <div style="text-align: right; margin-bottom: 20px;">
                             <a href="{% url 'home:register_assignment' %}" class="btn btn-primary">Registrar nueva asignación</a>
-                        </div>          
+                        </div> 
+                        <div class="table-responsive">         
                         <table class="table">
                             <thead>
                                 <tr>
@@ -44,44 +45,52 @@
                                     <td>{{ assignment.assignment_date }}</td>
                                     <td>{{ assignment.get_status_display }}</td>
                                     <td>
-                                        {% if assignment.status == "Asignado" %}
-                                        <a href="{% url 'home:return_equipment' assignment.id_assignment %}" class="btn btn-danger">Devolver</a>
+                                        {% if assignment.id_assignment %}
+                                            <a href="{% url 'home:return_equipment' assignment.id_assignment %}" class="btn btn-danger">Devolver</a>
+                                        {% else %}
+                                            <span class="text-danger">ID no válido</span>
                                         {% endif %}
+                                        
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+
+                    </div>
                 </div>
 
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Asignaciones Históricas</h5>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Equipo</th>
-                                    <th>Departamento</th>
-                                    <th>Estado</th>
-                                    <th>Fecha de Asignación</th>
-                                    <th>Fecha de Devolución</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for assignment in historical_assignments %}
-                                <tr>
-                                    <td>{{ assignment.id_assignment }}</td>
-                                    <td>{{ assignment.id_equipment }}</td>
-                                    <td>{{ assignment.id_department }}</td>
-                                    <td>{{ assignment.get_status_display }}</td>
-                                    <td>{{ assignment.assignment_date }}</td>
-                                    <td>{{ assignment.return_date }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Equipo</th>
+                                        <th>Departamento</th>
+                                        <th>Estado</th>
+                                        <th>Fecha de Asignación</th>
+                                        <th>Fecha de Devolución</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for assignment in historical_assignments %}
+                                    <tr>
+                                        <td>{{ assignment.id_assignment }}</td>
+                                        <td>{{ assignment.id_equipment }}</td>
+                                        <td>{{ assignment.id_department }}</td>
+                                        <td>{{ assignment.get_status_display }}</td>
+                                        <td>{{ assignment.assignment_date }}</td>
+                                        <td>{{ assignment.return_date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
                 </div>
             </div>

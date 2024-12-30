@@ -19,11 +19,18 @@ class Assignment(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=ASSIGNED)
 
     def save(self, *args, **kwargs):
-    
-        if not self.id_assignment:
-            self.id_assignment = f"Ass{uuid.uuid4().hex[:8]}"
+        if not self.id_assignment:  
+            self.id_assignment = f"Ass{uuid.uuid4().hex[:8]}"  
 
-        super().save(*args, **kwargs) 
+        Assignment.objects.filter(id_assignment__isnull=True).delete()
+        
+        super().save(*args, **kwargs)
+
+        is_new = not self.pk
+        if not self.id_assignment:
+            Assignment.objects.filter(id_assignment__isnull=True).delete()
+            self.id_assignment = f"Ass{uuid.uuid4().hex[:8]}"  
+        super().save(*args, **kwargs)
         
         if self.status == self.ASSIGNED:
             self.id_equipment.status = 'ASIGNADO'
