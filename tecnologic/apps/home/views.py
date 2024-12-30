@@ -5,16 +5,25 @@ from .forms import AssignmentForm
 from django.utils.timezone import now
 from django.contrib import messages
 from apps.departments.models import Department
+from django.db.models.functions import Coalesce
+from django.db.models import Count
 
 def home(request):
     total_equipos = Equipment.objects.count()
     equipos_disponibles = Assignment.objects.filter(status ='Devuelto').count()
     equipos_asignados = Assignment.objects.filter(status = 'Asignado').count()
+    equipos_mas_asignados = Equipment.objects.annotate(assignments_count=Count('assignment')).order_by('-assignments_count')[:5]
+    
+    chart_data = [{
+        'name': equipo.name,
+        'value': equipo.assignments_count
+    } for equipo in equipos_mas_asignados]
 
     context = {
         'total_equipos': total_equipos,
         'equipos_disponibles': equipos_disponibles,
         'equipos_asignados': equipos_asignados,
+        'chart_data': chart_data,
     }
     return render(request,'home/home.html', context)
 
@@ -54,20 +63,6 @@ def return_equipment(request, assignment_id):
         messages.error(request, 'El equipo ya ha sido devuelto.')
     return redirect('home:list_assignments')
 
-
-def recent_activity(request):
-    equipment_activity = Equipment.objects.annotate(date=Coalesce('created', 'updated')).values('id_equipment', 'name', 'date')
-    department_activity = Department.objects.annotate(date=Coalesce('created', 'updated')).values('id_department', 'name', 'date')
-    assignment_activity = Assignment.objects.annotate(date=Coalesce('assignment_date', 'return_date')).values('id_assignment', 'status', 'date')
-
-    combined_activity = list(equipment_activity) + list(department_activity) + list(assignment_activity)
-    sorted_activity = sorted(combined_activity, key=lambda x: x['date'], reverse=True)
-
-    context = {
-        'activities': sorted_activity[:10]  
-    }
-
-    return render(request, 'home/home.html', context)
 
 
 
